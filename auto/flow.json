@@ -1,0 +1,102 @@
+{
+    "name": "InterNations Automation",
+    "nodes": [
+        {
+            "parameters": {
+                "triggerTimes": {
+                    "item": [
+                        {
+                            "mode": "everyDay",
+                            "hour": 10,
+                            "minute": 0
+                        }
+                    ]
+                }
+            },
+            "id": "Cron",
+            "name": "Daily Trigger",
+            "type": "n8n-nodes-base.cron",
+            "typeVersion": 1,
+            "position": [
+                200,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "values": {
+                    "string": [
+                        {
+                            "name": "action",
+                            "value": "post"
+                        },
+                        {
+                            "name": "groupUrl",
+                            "value": "https://www.internations.org/group/YOUR_GROUP"
+                        },
+                        {
+                            "name": "text",
+                            "value": "Hello everyone! Excited to connect here."
+                        },
+                        {
+                            "name": "email",
+                            "value": "your@email.com"
+                        },
+                        {
+                            "name": "password",
+                            "value": "yourpassword"
+                        }
+                    ]
+                }
+            },
+            "id": "SetData",
+            "name": "Prepare Payload",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 2,
+            "position": [
+                400,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "requestMethod": "POST",
+                "url": "http://localhost:4000/run-bot",
+                "jsonParameters": true,
+                "bodyParametersJson": "={\n  \"action\": $json.action,\n  \"payload\": {\n    \"email\": $json.email,\n    \"password\": $json.password,\n    \"groupUrl\": $json.groupUrl,\n    \"text\": $json.text\n  }\n}"
+            },
+            "id": "HTTPRequest",
+            "name": "Run Bot",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 2,
+            "position": [
+                600,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Daily Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Prepare Payload",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Prepare Payload": {
+            "main": [
+                [
+                    {
+                        "node": "Run Bot",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
